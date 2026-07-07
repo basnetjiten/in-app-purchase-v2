@@ -7,7 +7,17 @@ export var APPLE = constants.SERVICES.APPLE;
 export var GOOGLE = constants.SERVICES.GOOGLE;
 export var VALIDATION = constants.VALIDATION;
 
-var googleConfig = null;
+function getService(receipt) {
+    if (!receipt) {
+        throw new Error('Receipt was null or undefined');
+    }
+    if (typeof receipt === 'object') {
+        if (receipt.signature || receipt.purchaseToken) {
+            return GOOGLE;
+        }
+    }
+    return APPLE;
+}
 
 export function config(configIn) {
     if (!configIn) {
@@ -15,7 +25,6 @@ export function config(configIn) {
     }
     verbose.setup(configIn);
     if (configIn.googleServiceAccount) {
-        googleConfig = configIn.googleServiceAccount;
         googleApi.config(configIn.googleServiceAccount);
     }
     apple.readConfig(configIn);
@@ -31,6 +40,10 @@ export function setup() {
 }
 
 export function validate(service, receipt) {
+    if (receipt === undefined) {
+        receipt = service;
+        service = getService(receipt);
+    }
     return new Promise(function (resolve, reject) {
         switch (service) {
             case APPLE:
@@ -52,6 +65,11 @@ export function validate(service, receipt) {
 }
 
 export function validateOnce(service, secretOrPubKey, receipt) {
+    if (receipt === undefined) {
+        receipt = secretOrPubKey;
+        secretOrPubKey = service;
+        service = getService(receipt);
+    }
     return new Promise(function (resolve, reject) {
         switch (service) {
             case APPLE:
@@ -113,11 +131,24 @@ export function getPurchaseData(purchaseData, options) {
         case APPLE:
             return apple.getPurchaseData(purchaseData, options);
         case GOOGLE:
-            if (googleApi.getPurchaseData) {
-                return googleApi.getPurchaseData(purchaseData, options);
-            }
-            return null;
+            return googleApi.getPurchaseData(purchaseData, options);
         default:
             return null;
     }
 }
+
+var iap = {
+    config: config,
+    setup: setup,
+    validate: validate,
+    validateOnce: validateOnce,
+    isValidated: isValidated,
+    isExpired: isExpired,
+    isCanceled: isCanceled,
+    getPurchaseData: getPurchaseData,
+    APPLE: APPLE,
+    GOOGLE: GOOGLE,
+    VALIDATION: VALIDATION
+};
+
+export default iap;
