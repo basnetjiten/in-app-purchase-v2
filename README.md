@@ -439,3 +439,4 @@ in-app-purchase module supports the following algorithms:
 
 The module supports the same configurations as [npm request module] (https://www.npmjs.com/package/request#requestoptions-callback)
 
+# in-app-purchase-v2
