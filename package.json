@@ -54,6 +54,14 @@
    "amd": true,
    "mocha": true
   },
+  "globals": {
+   "Deno": true,
+   "fetch": true,
+   "atob": true,
+   "btoa": true,
+   "TextEncoder": true,
+   "crypto": true
+  },
   "rules": {
    "max-depth": 5,
    "no-undef": "error",
